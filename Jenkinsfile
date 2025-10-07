@@ -4,7 +4,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/shrutika0910/docker-app.git'
+                git branch: 'main', url: 'https://github.com/shrutika0910/docker-app.git'
+
             }
         }
 
