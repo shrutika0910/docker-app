@@ -6,26 +6,30 @@ pipeline {
         DOCKER_IMAGE = "shrutika91/docker-app"
     }
 
+    pipeline {
+    agent any
+
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/shrutika0910/docker-app.git'
+                git 'https://github.com/shrutika0910/docker-app.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh 'docker build -t $DOCKER_IMAGE:$BUILD_NUMBER .'
-                }
+                bat 'docker build -t shrutika0910/docker-app .'
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    sh "echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin"
-                    sh "docker push $DOCKER_IMAGE:$BUILD_NUMBER"
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat '''
+                        docker login -u %DOCKER_USER% -p %DOCKER_PASS%
+                        docker tag shrutika0910/docker-app %DOCKER_USER%/docker-app:latest
+                        docker push %DOCKER_USER%/docker-app:latest
+                    '''
                 }
             }
         }
